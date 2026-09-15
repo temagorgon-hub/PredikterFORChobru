@@ -4,18 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ChemSpace - Telegram Mini App</title>
-    <!-- Официальный скрипт Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Используем нативные переменные Telegram для идеальной интеграции */
             --bg: var(--tg-theme-secondary-bg-color, #ebedf0); 
             --app-bg: var(--tg-theme-bg-color, #ffffff); 
             --text-main: var(--tg-theme-text-color, #000000); 
             --text-muted: var(--tg-theme-hint-color, #8e8e93); 
             --primary: var(--tg-theme-button-color, #007aff); 
-            --primary-hover: var(--tg-theme-button-color, #0062cc);
             --danger: #ff3b30; --success: #34c759;
             --border: rgba(142, 142, 147, 0.2);
             --shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -25,55 +22,42 @@
 
         body { background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
 
-        .app-container {
-            width: 100%; height: 100vh; background: var(--app-bg); color: var(--text-main); 
-            display: flex; flex-direction: column; position: relative; overflow: hidden;
-        }
+        .app-container { width: 100%; height: 100vh; background: var(--app-bg); color: var(--text-main); display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
-        /* Header */
         .header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--app-bg); z-index: 10; }
-        .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .header h1 { font-size: 20px; font-weight: 700; }
         .tg-user-info { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
         .tg-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
 
-        /* Content Area */
         .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; }
         .content::-webkit-scrollbar { width: 0; }
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: absolute; bottom: 0; left: 0; right: 0; background: rgba(var(--app-bg), 0.85);
-            backdrop-filter: blur(12px); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; padding: 12px 10px 24px; z-index: 10; display: none;
-        }
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(var(--app-bg), 0.85); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 10px 24px; z-index: 10; display: none; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
         .nav-item.active { color: var(--primary); }
         .nav-icon { font-size: 22px; }
 
-        /* Elements */
         input, select, textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-size: 15px; outline: none; margin-bottom: 12px; transition: 0.2s; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
         
         .btn { background: var(--primary); color: var(--tg-theme-button-text-color, #fff); border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
         .btn:active { transform: scale(0.97); opacity: 0.8; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
         .btn-danger { background: var(--danger); color: white; }
 
-        /* Roles Welcome Screen */
         .role-card { background: var(--bg); border: 1px solid var(--border); padding: 24px; border-radius: 16px; text-align: center; cursor: pointer; margin-bottom: 16px; transition: 0.2s; }
         .role-card:active { transform: scale(0.98); }
         .role-icon { font-size: 48px; margin-bottom: 12px; }
         .role-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 
-        /* Cards & Lists */
         .card { background: var(--app-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
         .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: var(--bg); color: var(--text-main); }
         .badge.blue { color: var(--primary); background: rgba(0, 122, 255, 0.1); }
         
-        /* Modals & FAB */
         .fab { position: absolute; bottom: 90px; right: 20px; width: 56px; height: 56px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4); border: none; z-index: 5; cursor: pointer; }
         
         .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 20; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: 0.3s; }
@@ -87,55 +71,45 @@
 <div class="app-container">
     <div class="header">
         <h1>🧪 ChemSpace</h1>
-        <div class="tg-user-info" id="tg-user-display">
+        <div class="tg-user-info">
             <span id="tg-name-header">Загрузка...</span>
             <div class="tg-avatar" id="tg-avatar-header">?</div>
         </div>
     </div>
     
     <div class="content" id="main-content">
-        <!-- Экран 1: Выбор роли (Показывается только если TG ID нет в базе) -->
+        <!-- Экран выбора роли -->
         <div class="view-section active" id="view-welcome">
             <h2 style="margin-bottom: 8px; text-align: center;">Добро пожаловать!</h2>
             <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">Ваш Telegram аккаунт будет привязан к профилю.</p>
-            
-            <div class="role-card" onclick="showAuth('student')">
-                <div class="role-icon">👨‍🎓</div>
-                <div class="role-title">Я Ученик</div>
-            </div>
-            
-            <div class="role-card" onclick="showAuth('teacher')">
-                <div class="role-icon">👨‍🏫</div>
-                <div class="role-title">Я Учитель</div>
-            </div>
+            <div class="role-card" onclick="showAuth('student')"><div class="role-icon">👨‍🎓</div><div class="role-title">Я Ученик</div></div>
+            <div class="role-card" onclick="showAuth('teacher')"><div class="role-icon">👨‍🏫</div><div class="role-title">Я Учитель</div></div>
         </div>
 
-        <!-- Экран 2: Регистрация Учителя -->
+        <!-- Регистрация Учителя (ФИКС: Пароль убран из текста) -->
         <div class="view-section" id="view-auth-teacher">
             <h2 style="margin-bottom: 8px;">Доступ учителя</h2>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">Введите системный пин-код (890135). Привязка к Telegram произойдет автоматически.</p>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Введите секретный пин-код для получения прав администратора.</p>
             <input type="password" id="admin-pass" placeholder="Пин-код">
             <button class="btn" onclick="registerTeacher()">Привязать аккаунт</button>
             <button class="btn" style="background: transparent; color: var(--primary); margin-top: 8px;" onclick="showView('view-welcome')">Назад</button>
         </div>
 
-        <!-- Экран 3: Регистрация Ученика -->
+        <!-- Регистрация Ученика -->
         <div class="view-section" id="view-auth-student">
             <h2 style="margin-bottom: 8px;">Привязка дневника</h2>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">Выберите свой класс и имя. <b>Внимание:</b> Имя можно привязать только к одному Telegram аккаунту!</p>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Выберите свой класс и имя.</p>
             <select id="s-grade-login" onchange="updateStudentLoginList()">
                 <option value="" disabled selected>1. Выберите класс...</option>
                 <option value="8">8 класс</option><option value="9">9 класс</option>
                 <option value="10">10 класс</option><option value="11">11 класс</option>
             </select>
-            <select id="s-name-login" disabled>
-                <option value="" disabled selected>2. Выберите имя...</option>
-            </select>
+            <select id="s-name-login" disabled><option value="" disabled selected>2. Выберите имя...</option></select>
             <button class="btn" onclick="registerStudent()">Связать с Telegram</button>
             <button class="btn" style="background: transparent; color: var(--primary); margin-top: 8px;" onclick="showView('view-welcome')">Назад</button>
         </div>
 
-        <!-- ================= УЧИТЕЛЬ: ВЬЮХИ ================= -->
+        <!-- Учитель: Задания -->
         <div class="view-section" id="view-teacher-tasks">
             <div class="list-header">
                 <h2>Задания</h2>
@@ -148,44 +122,32 @@
             <button class="fab" onclick="openAddModal()">+</button>
         </div>
 
-        <!-- ================= УЧЕНИК: ВЬЮХИ ================= -->
+        <!-- Ученик: Задания -->
         <div class="view-section" id="view-student-tasks">
             <h2 style="margin-bottom: 16px;">Мои задания</h2>
             <div id="s-tasks-list"></div>
         </div>
 
+        <!-- Ученик: Профиль -->
         <div class="view-section" id="view-student-profile">
             <h2 style="margin-bottom: 16px;">Мой профиль</h2>
             <div class="card" style="text-align: center; padding: 32px 16px;">
                 <div class="tg-avatar" id="s-profile-avatar" style="width: 80px; height: 80px; font-size: 32px; margin: 0 auto 16px;">И</div>
                 <h3 id="s-profile-name" style="margin-bottom: 4px;">Имя</h3>
                 <p id="s-profile-grade" style="color: var(--text-muted); margin-bottom: 16px;">Класс</p>
-                <div style="background: var(--bg); padding: 12px; border-radius: 12px; color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">
-                    🔒 Привязано к Telegram ID: <b id="s-profile-tgid">...</b>
-                </div>
                 <button class="btn btn-danger" onclick="unlinkAccount()">Отвязать устройство</button>
             </div>
         </div>
     </div>
 
-    <!-- Навигация Учителя -->
+    <!-- Навигация -->
     <div class="bottom-nav" id="nav-teacher">
-        <button class="nav-item active" onclick="switchNav('teacher', 'tasks', this)">
-            <span class="nav-icon">📚</span><span>Задания</span>
-        </button>
-        <button class="nav-item" onclick="unlinkAccount()">
-            <span class="nav-icon">🚪</span><span>Сменить акк</span>
-        </button>
+        <button class="nav-item active" onclick="switchNav('teacher', 'tasks', this)"><span class="nav-icon">📚</span><span>Задания</span></button>
+        <button class="nav-item" onclick="unlinkAccount()"><span class="nav-icon">🚪</span><span>Сменить акк</span></button>
     </div>
-
-    <!-- Навигация Ученика -->
     <div class="bottom-nav" id="nav-student">
-        <button class="nav-item active" onclick="switchNav('student', 'tasks', this)">
-            <span class="nav-icon">📝</span><span>Мои ДЗ</span>
-        </button>
-        <button class="nav-item" onclick="switchNav('student', 'profile', this)">
-            <span class="nav-icon">👤</span><span>Профиль</span>
-        </button>
+        <button class="nav-item active" onclick="switchNav('student', 'tasks', this)"><span class="nav-icon">📝</span><span>Мои ДЗ</span></button>
+        <button class="nav-item" onclick="switchNav('student', 'profile', this)"><span class="nav-icon">👤</span><span>Профиль</span></button>
     </div>
 </div>
 
@@ -204,56 +166,46 @@
             <select id="t-target-modal" style="margin:0; flex:2;"></select>
         </div>
         <textarea id="t-text" placeholder="Текст задания..." style="min-height: 100px; margin-bottom: 16px;"></textarea>
-        <button class="btn" onclick="addHW()">🚀 Опубликовать</button>
+        
+        <!-- ФИКС: Кнопка файла обернута в label для мобильных устройств -->
+        <label class="btn btn-outline" style="margin-bottom: 12px; font-weight: 500; cursor: pointer; display: flex; justify-content: center;">
+            <input type="file" id="t-file-input" style="display: none;" onchange="handleFileSelect(event)">
+            📎 Прикрепить файл
+        </label>
+        <div id="t-file-preview" style="margin-bottom: 16px;"></div>
+
+        <button class="btn" onclick="addHW()">🚀 Опубликовать и разослать SMS</button>
     </div>
 </div>
 
 <script>
-    // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP ---
-    const tg = window.Telegram.WebApp;
-    tg.expand(); // Разворачиваем на весь экран
-    
-    // Получаем реальные данные пользователя из Telegram
-    // Если открыли просто в браузере - генерируем фейковый ID для тестов
-    let tgUser = tg.initDataUnsafe?.user;
-    if (!tgUser) {
-        tgUser = { id: Math.floor(Math.random() * 100000), first_name: "Браузер", last_name: "Тест" };
-        console.log("Запущено вне Telegram. Сгенерирован ID:", tgUser.id);
-    } else {
-        tg.ready();
-    }
+    // === ВСТАВЬ СВОЙ ТОКЕН БОТА СЮДА ===
+    const BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА";
+    // ===================================
 
-    // Отображаем инфу TG в шапке
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    
+    let tgUser = tg.initDataUnsafe?.user || { id: 12345, first_name: "Браузер" };
     document.getElementById('tg-name-header').innerText = tgUser.first_name;
     document.getElementById('tg-avatar-header').innerText = tgUser.first_name.charAt(0);
 
-    // --- БАЗА ДАННЫХ ---
     let defaultStudents = [
         { id: 1, name: 'Иванов Иван', grade: '8' }, { id: 2, name: 'Смирнова Анна', grade: '8' },
         { id: 3, name: 'Петров Алексей', grade: '9' }, { id: 4, name: 'Соколова Мария', grade: '9' }
     ];
-    let studentsDB = JSON.parse(localStorage.getItem('students_db_v7')) || defaultStudents;
-    let hwDB = JSON.parse(localStorage.getItem('hw_db_v7')) || [];
-    
-    // БАЗА АККАУНТОВ: Связка Telegram ID <-> Роль/Имя
-    // Формат: [ { tg_id: 12345, role: 'student', name: 'Иванов Иван', grade: '9' }, { tg_id: 6789, role: 'teacher' } ]
-    let accountsDB = JSON.parse(localStorage.getItem('accounts_db_v7')) || [];
+    let studentsDB = JSON.parse(localStorage.getItem('students_db_v8')) || defaultStudents;
+    let hwDB = JSON.parse(localStorage.getItem('hw_db_v8')) || [];
+    let accountsDB = JSON.parse(localStorage.getItem('accounts_db_v8')) || [];
     let currentUser = null;
+    let pendingFile = null;
 
-    // --- ЛОГИКА АВТО-ВХОДА ---
     function checkAutoLogin() {
-        // Ищем, привязан ли этот TG ID к какому-то аккаунту в нашей базе
         const myAccount = accountsDB.find(acc => acc.tg_id === tgUser.id);
-        
-        if (myAccount) {
-            currentUser = myAccount;
-            initAppUI(); // Пускаем внутрь сразу!
-        } else {
-            showView('view-welcome'); // Показываем экран регистрации
-        }
+        if (myAccount) { currentUser = myAccount; initAppUI(); } 
+        else { showView('view-welcome'); }
     }
 
-    // --- НАВИГАЦИЯ ---
     function showView(viewId) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
@@ -263,35 +215,26 @@
     function initAppUI() {
         document.getElementById('nav-teacher').style.display = currentUser.role === 'teacher' ? 'flex' : 'none';
         document.getElementById('nav-student').style.display = currentUser.role === 'student' ? 'flex' : 'none';
-        
-        if (currentUser.role === 'teacher') {
-            switchNav('teacher', 'tasks', document.querySelector('#nav-teacher .nav-item'));
-        } else {
-            switchNav('student', 'tasks', document.querySelector('#nav-student .nav-item'));
-        }
+        if (currentUser.role === 'teacher') switchNav('teacher', 'tasks', document.querySelector('#nav-teacher .nav-item'));
+        else switchNav('student', 'tasks', document.querySelector('#nav-student .nav-item'));
     }
 
     function switchNav(role, tab, element) {
         document.querySelectorAll(`#nav-${role} .nav-item`).forEach(el => el.classList.remove('active'));
         if(element) element.classList.add('active');
         showView(`view-${role}-${tab}`);
-        
         if(role === 'teacher' && tab === 'tasks') renderTeacherTasks();
         if(role === 'student' && tab === 'tasks') renderStudentTasks();
         if(role === 'student' && tab === 'profile') renderStudentProfile();
     }
 
-    // --- РЕГИСТРАЦИЯ И ПРИВЯЗКА TELEGRAM ID ---
     function registerTeacher() {
         if(document.getElementById('admin-pass').value === '890135') {
-            // Сохраняем связку TG ID -> Учитель
-            const newAcc = { tg_id: tgUser.id, role: 'teacher' };
-            accountsDB.push(newAcc);
-            localStorage.setItem('accounts_db_v7', JSON.stringify(accountsDB));
-            
-            currentUser = newAcc;
+            currentUser = { tg_id: tgUser.id, role: 'teacher' };
+            accountsDB.push(currentUser);
+            localStorage.setItem('accounts_db_v8', JSON.stringify(accountsDB));
             initAppUI();
-            tg.showAlert("Аккаунт учителя успешно привязан к вашему Telegram!");
+            tg.showAlert("Успешно!");
         } else tg.showAlert("Неверный пин-код!");
     }
 
@@ -299,9 +242,7 @@
         const grade = document.getElementById('s-grade-login').value;
         const select = document.getElementById('s-name-login');
         const students = studentsDB.filter(s => s.grade === grade);
-        
         select.innerHTML = students.map(s => {
-            // Проверяем, занят ли этот ученик другим Telegram ID
             const isTaken = accountsDB.some(acc => acc.role === 'student' && acc.name === s.name && acc.grade === grade);
             return `<option value="${s.name}" ${isTaken ? 'disabled' : ''}>${s.name} ${isTaken ? '(Уже привязан 🔒)' : ''}</option>`;
         }).join('');
@@ -311,26 +252,17 @@
     function registerStudent() {
         const grade = document.getElementById('s-grade-login').value;
         const name = document.getElementById('s-name-login').value;
-        if(!grade || !name) return tg.showAlert("Заполните все поля!");
-
-        // Двойная проверка, не занят ли аккаунт
-        const isTaken = accountsDB.some(acc => acc.role === 'student' && acc.name === name && acc.grade === grade);
-        if(isTaken) return tg.showAlert("Этот ученик уже привязан к чужой учетной записи Telegram!");
-
-        const newAcc = { tg_id: tgUser.id, role: 'student', name: name, grade: grade };
-        accountsDB.push(newAcc);
-        localStorage.setItem('accounts_db_v7', JSON.stringify(accountsDB));
-        
-        currentUser = newAcc;
+        if(!grade || !name) return;
+        currentUser = { tg_id: tgUser.id, role: 'student', name: name, grade: grade };
+        accountsDB.push(currentUser);
+        localStorage.setItem('accounts_db_v8', JSON.stringify(accountsDB));
         initAppUI();
-        tg.showAlert("Дневник успешно привязан!");
     }
 
-    // Отвязка (для тестов, чтобы можно было зайти за другого)
     function unlinkAccount() {
-        if(confirm("Вы уверены? Придется заново привязывать аккаунт.")) {
+        if(confirm("Отвязать устройство?")) {
             accountsDB = accountsDB.filter(acc => acc.tg_id !== tgUser.id);
-            localStorage.setItem('accounts_db_v7', JSON.stringify(accountsDB));
+            localStorage.setItem('accounts_db_v8', JSON.stringify(accountsDB));
             currentUser = null;
             document.getElementById('nav-teacher').style.display = 'none';
             document.getElementById('nav-student').style.display = 'none';
@@ -338,9 +270,10 @@
         }
     }
 
-    // --- ЛОГИКА УЧИТЕЛЯ ---
     function openAddModal() {
         updateTargetSelect();
+        pendingFile = null;
+        document.getElementById('t-file-preview').innerHTML = '';
         document.getElementById('add-modal').classList.add('show');
     }
     
@@ -351,19 +284,78 @@
         select.innerHTML = '<option value="Все">📢 Всем</option>' + students.map(s => `<option value="${s.name}">👤 ${s.name}</option>`).join('');
     }
 
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        if(file.size > 2.5 * 1024 * 1024) return tg.showAlert("Размер файла превышает лимит демо-версии (2.5 МБ).");
+        
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            pendingFile = { name: file.name, data: evt.target.result };
+            document.getElementById('t-file-preview').innerHTML = `<div style="background:var(--bg); padding:10px; border-radius:8px;">📎 ${file.name}</div>`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ФИКС 3: Функция для рассылки SMS напрямую через Telegram API
+    async function sendTelegramMessage(chatId, text) {
+        if (!BOT_TOKEN || BOT_TOKEN === "ТВОЙ_ТОКЕН_БОТА") return;
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        try {
+            await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
+            });
+        } catch (e) { console.error("Ошибка отправки SMS", e); }
+    }
+
     function addHW() {
         const text = document.getElementById('t-text').value.trim();
-        if(!text) return tg.showAlert("Введите текст!");
+        const grade = document.getElementById('t-grade-modal').value;
+        const target = document.getElementById('t-target-modal').value;
+        
+        if(!text && !pendingFile) return tg.showAlert("Введите текст или прикрепите файл!");
 
         hwDB.unshift({
-            id: Date.now(), grade: document.getElementById('t-grade-modal').value, 
-            targetName: document.getElementById('t-target-modal').value, 
-            text: text, date: new Date().toLocaleDateString('ru-RU'), completedBy: []
+            id: Date.now(), grade: grade, targetName: target, 
+            text: text, file: pendingFile, date: new Date().toLocaleDateString('ru-RU'), completedBy: []
         });
-        localStorage.setItem('hw_db_v7', JSON.stringify(hwDB));
         
-        document.getElementById('t-text').value = ''; 
-        document.getElementById('add-modal').classList.remove('show');
+        try {
+            localStorage.setItem('hw_db_v8', JSON.stringify(hwDB));
+            
+            // РАССЫЛКА СООБЩЕНИЙ УЧЕНИКАМ
+            const smsText = target === 'Все' 
+                ? `📢 <b>Новое задание по химии!</b>\n\nКласс: ${grade}\nЗадание: <i>${text}</i>\n\nЗайдите в дневник для выполнения.`
+                : `🎯 <b>Персональное задание!</b>\n\nЗадание: <i>${text}</i>\n\nЗайдите в дневник для выполнения.`;
+            
+            // Находим учеников, которым нужно отправить уведомление
+            const studentsToNotify = accountsDB.filter(acc => 
+                acc.role === 'student' && 
+                acc.grade === grade && 
+                (target === 'Все' || acc.name === target)
+            );
+            
+            studentsToNotify.forEach(student => {
+                sendTelegramMessage(student.tg_id, smsText);
+            });
+            
+            document.getElementById('t-text').value = ''; 
+            document.getElementById('add-modal').classList.remove('show');
+            document.getElementById('t-view-grade').value = grade;
+            renderTeacherTasks();
+            tg.showAlert("Задание опубликовано, ученики получили уведомления!");
+            
+        } catch(e) { 
+            hwDB.shift(); 
+            tg.showAlert("Память переполнена! Удалите старые задания с файлами."); 
+        }
+    }
+
+    function deleteHW(id) {
+        hwDB = hwDB.filter(hw => hw.id !== id);
+        localStorage.setItem('hw_db_v8', JSON.stringify(hwDB));
         renderTeacherTasks();
     }
 
@@ -378,14 +370,15 @@
                     <span style="font-size:12px; color:var(--text-muted);">${hw.date}</span>
                 </div>
                 <div style="font-size: 15px; margin-bottom: 12px;">${hw.text}</div>
-                <div style="color:var(--text-muted); font-size:13px; margin-top:16px;">
-                    ${hw.targetName === 'Все' ? `Сдали: ${hw.completedBy.length}` : (hw.completedBy.includes(hw.targetName) ? '✅ Сдано' : '⏳ В процессе')}
+                ${hw.file ? `<a href="${hw.file.data}" download="${hw.file.name}" style="display:block; background:var(--bg); padding:10px; border-radius:8px; text-decoration:none; color:var(--text-main); margin-bottom:12px;">📎 ${hw.file.name}</a>` : ''}
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+                    <span style="color:var(--text-muted); font-size:13px;">${hw.targetName === 'Все' ? `Сдали: ${hw.completedBy.length}` : (hw.completedBy.includes(hw.targetName) ? '✅ Сдано' : '⏳ Ждет')}</span>
+                    <span style="color:var(--danger); font-size:13px; cursor:pointer;" onclick="deleteHW(${hw.id})">Удалить</span>
                 </div>
             </div>
         `).join('') || '<div style="text-align:center; color:var(--text-muted); margin-top:40px;">Нет заданий</div>';
     }
 
-    // --- ЛОГИКА УЧЕНИКА ---
     function renderStudentTasks() {
         const tasks = hwDB.filter(hw => hw.grade === currentUser.grade && (hw.targetName === currentUser.name || hw.targetName === 'Все'));
         
@@ -398,6 +391,7 @@
                     <span style="font-size:12px; color:var(--text-muted);">${hw.date}</span>
                 </div>
                 <div style="font-size: 15px; margin-bottom: 12px; ${isDone ? 'text-decoration:line-through;' : ''}">${hw.text}</div>
+                ${hw.file ? `<a href="${hw.file.data}" download="${hw.file.name}" style="display:block; background:rgba(0,122,255,0.1); color:var(--primary); padding:10px; border-radius:8px; text-decoration:none; margin-bottom:12px;">⬇ Скачать: ${hw.file.name}</a>` : ''}
                 <button class="${isDone ? 'btn-outline' : 'btn'}" style="margin-top:16px; padding: 12px;" onclick="toggleStudentDone(${hw.id})">
                     ${isDone ? 'Отменить сдачу' : '✅ Сдать работу'}
                 </button>
@@ -410,7 +404,7 @@
         if(!hw) return;
         const idx = hw.completedBy.indexOf(currentUser.name);
         idx > -1 ? hw.completedBy.splice(idx, 1) : hw.completedBy.push(currentUser.name);
-        localStorage.setItem('hw_db_v7', JSON.stringify(hwDB));
+        localStorage.setItem('hw_db_v8', JSON.stringify(hwDB));
         renderStudentTasks();
     }
 
@@ -418,10 +412,8 @@
         document.getElementById('s-profile-name').innerText = currentUser.name;
         document.getElementById('s-profile-grade').innerText = `${currentUser.grade} класс`;
         document.getElementById('s-profile-avatar').innerText = currentUser.name.charAt(0);
-        document.getElementById('s-profile-tgid').innerText = tgUser.id;
     }
 
-    // Запуск приложения
     checkAutoLogin();
 </script>
 </body>
